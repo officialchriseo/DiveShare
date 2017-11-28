@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ng.com.blogspot.httpofficialceo.diveshare.MainActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#3F51B5">
+
+<de.hdodenhof.circleimageview.CircleImageView
+    android:id="@+id/user_image"
+    android:layout_width="150dp"
+    android:layout_height="150dp"
+    android:layout_gravity="center"
+    android:src="@drawable/dike"/>
+
+    </FrameLayout>
+
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:layout_margin="15dp"
+       android:orientation="vertical">
+
+       <Button
+           android:id="@+id/share_resource_button"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginRight="15dp"
+           android:layout_marginLeft="15dp"
+           android:textAllCaps="false"
+           android:textColor="#fff"
+           android:background="@drawable/mybutton"
+           android:text="Share resources"
+           android:layout_marginBottom="20dp"/>
+
+       <Button
+           android:id="@+id/receive_resource_button"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginRight="15dp"
+           android:layout_marginLeft="15dp"
+           android:text="Receive resources"
+           android:textColor="#fff"
+           android:textAllCaps="false"
+           android:background="@drawable/mybutton"
+           android:layout_marginBottom="20dp"/>
+
+       <Button
+           android:id="@+id/share_app_button"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginRight="15dp"
+           android:layout_marginLeft="15dp"
+           android:text="Share this app"
+           android:background="@drawable/mybutton2"
+           android:textAllCaps="false"
+           android:layout_marginBottom="20dp"/>
+
+
+
+   </LinearLayout>
+
+
+</LinearLayout>
