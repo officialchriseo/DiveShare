@@ -1,110 +1,169 @@
 package ng.com.blogspot.httpofficialceo.diveshare;
 
-import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.view.ViewGroup;
-
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class ContactsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        AdapterView.OnItemClickListener {
+public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private static final int CONTACT_ID_INDEX = 0;
-    private static final int LOOKUP_KEY_INDEX = 1;
+    ListView listView ;
+    ArrayList<String> contactName = new ArrayList<String>();
+    ArrayList<String> contactNumber= new ArrayList<String>();
+    MyAdapter ma;
+   // ArrayAdapter<String> arrayAdapter ;
 
-    @SuppressLint("InlinedApi")
-    private final static String[] FROM_COLUMNS = {
-            Build.VERSION.SDK_INT
-                    >= Build.VERSION_CODES.JELLY_BEAN ?
-                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
-                    ContactsContract.Contacts.DISPLAY_NAME
-    };
+    String name, phonenumber ;
+    public  static final int RequestPermissionCode  = 1 ;
 
-    private final static int[] TO_IDS = {
-            android.R.id.text1
-    };
+    Context context;
 
-    ListView mContactsList;
-    long mContactId;
-    String mContactKey;
-    Uri mContactUri;
-    private SimpleCursorAdapter mCursorAdapter;
-    private String mSearchString;
-
-
-    public ContactsFragment(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_contacts, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_contacts, container, false);
+
+        getAllCallLogs(getActivity().getContentResolver());
+
+        listView = (ListView) rootView.findViewById(R.id.listview1);
+
+        ma = new MyAdapter();
+        listView.setAdapter(ma);
+        listView.setOnItemClickListener(this);
+        listView.setItemsCanFocus(false);
+        listView.setTextFilterEnabled(true);
+
+
+
+
+
+
+        return rootView;
 
 
     }
 
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void getAllCallLogs(ContentResolver cr){
+        Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
 
-        mContactsList =
-                (ListView) getActivity().findViewById(R.layout.contact_list_view);
-        mCursorAdapter = new SimpleCursorAdapter(
-                getActivity(),
-                R.layout.contact_list_item,
-                null,
-                FROM_COLUMNS, TO_IDS,
-                0);
+        while (phones.moveToNext()){
+            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
-        mContactsList.setAdapter(mCursorAdapter);
-        mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View item, int position, long rowID) {
-                Cursor cursor = parent.getAdapter().getCursor();
-                // Move to the selected contact
-                cursor.moveToPosition(position);
-                // Get the _ID value
-                mContactId = getLong(CONTACT_ID_INDEX);
-                // Get the selected LOOKUP KEY
-                mContactKey = getString(CONTACT_KEY_INDEX);
-                // Create the contact's content Uri
-                mContactUri = ContactsContract.Contacts.getLookupUri(mContactId, mContactKey);
-            }
-        });
+            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+            contactName.add(name);
+            contactNumber.add(phoneNumber);
+        }
+
+        phones.close();
     }
 
-    @SuppressLint("InlinedApi")
-    private static final String[] PROJECTION =
-            {
-                    ContactsContract.Contacts._ID,
-                    ContactsContract.Contacts.LOOKUP_KEY,
-                    Build.VERSION.SDK_INT
-                            >= Build.VERSION_CODES.HONEYCOMB ?
-                            ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
-                            ContactsContract.Contacts.DISPLAY_NAME
-
-            };
-
-
-    @SuppressLint("InlinedApi")
-    private static final String SELECTION =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?" :
-                    ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
-
-    private String[] mSelectionArgs = { mSearchString };
 
 
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+
+
+//        ma.toggle(position);
+
+    }
+
+    class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener{
+
+        private SparseBooleanArray mCheckState;
+        LayoutInflater mInflater;
+        TextView tv1, tv2;
+        CheckBox cb;
+        Button confirmShareButton;
+        CircleImageView contactImage;
+
+        MyAdapter(){
+            mCheckState = new SparseBooleanArray(contactName.size());
+            mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return contactName.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View vi = convertView;
+
+            if (convertView == null)
+                vi = mInflater.inflate(R.layout.contact_items_listview, null);
+
+            tv1 = (TextView) vi.findViewById(R.id.contact_name);
+            tv2 = (TextView) vi.findViewById(R.id.contact_number);
+            contactImage = (CircleImageView) vi.findViewById(R.id.contact_image);
+           // confirmShareButton = (Button) vi.findViewById(R.id.confirm_share_button);
+            cb = (CheckBox) vi.findViewById(R.id.checkBox1);
+            tv1.setText(contactName.get(position));
+            tv2.setText(contactNumber.get(position));
+            cb.setTag(position);
+
+//            if (cb.isChecked()){
+//                confirmShareButton.setVisibility(View.VISIBLE);
+//            }else{
+//                confirmShareButton.setVisibility(View.GONE);
+//            }
+
+            return vi;
+        }
+
+        public boolean isChecked(int position) {
+            return mCheckState.get(position, false);
+        }
+
+        public void setChecked(int position, boolean isChecked) {
+            mCheckState.put(position, isChecked);
+        }
+
+        public void toggle(int position) {
+            setChecked(position, !isChecked(position));
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            mCheckState.put((Integer) buttonView.getTag(), isChecked);
+        }
+    }
 }
+
