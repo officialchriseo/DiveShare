@@ -1,14 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ng.com.blogspot.httpofficialceo.diveshare.MessagesFragment">
 
 
-    <ListView
-        android:id="@+id/messages_list"
+    <TextView
+        android:id="@+id/smsNumberText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
 
-</RelativeLayout>
+</LinearLayout>

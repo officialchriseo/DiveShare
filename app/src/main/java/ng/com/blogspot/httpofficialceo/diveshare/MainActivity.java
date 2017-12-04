@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static java.security.AccessController.getContext;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void EnableRuntimePermission(){
+
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 MainActivity.this,
