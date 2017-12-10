@@ -2,9 +2,13 @@ package ng.com.blogspot.httpofficialceo.diveshare;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +17,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.logging.Handler;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -22,6 +27,9 @@ import static ng.com.blogspot.httpofficialceo.diveshare.ContactsFragment.Request
 public class MainActivity extends AppCompatActivity {
 
     public static Context contextOfApplication;
+    private boolean backPressedOnce = false;
+    private Handler statusUpdateHandler;
+    private Runnable statusUpdateRunnable;
 
     private CircleImageView userImage;
     private Button shareResources, receiveResources, shareApp;
@@ -110,5 +118,33 @@ public class MainActivity extends AppCompatActivity {
         return contextOfApplication;
     }
 
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("QUIT");
+        alertDialog.setMessage("Do you want to exit this app?");
+        alertDialog.setIcon(R.drawable.ic_exit_app_black_24dp);
 
+        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+                System.exit(0);
+            }
+        });
+
+        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+                return;
+            }
+        });
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (statusUpdateHandler != null){
+        }
+    }
 }
