@@ -1,8 +1,5 @@
 package ng.com.blogspot.httpofficialceo.diveshare;
 
-import android.app.AlertDialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,8 +10,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.SupportActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,36 +25,38 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
+import ebongcreative.max.ssp.SSP;
+import ebongcreative.max.ssp.SharedPreferenceStorage;
+import ng.com.blogspot.httpofficialceo.diveshare.adapter.ContactAdapter;
+import ng.com.blogspot.httpofficialceo.diveshare.model.ContactModel;
 
 
 public class ContactsFragment extends Fragment {
-
-    private String personName;
-    private String personNumber;
-
 
     public static final int RequestPermissionCode = 1;
     Toast myToast;
     ListView listView;
     ArrayList<String> contactName = new ArrayList<String>();
     ArrayList<String> contactNumber = new ArrayList<String>();
+    ArrayList<String> selectedItems = new ArrayList<>();
     MyAdapter ma;
     Cursor phones;
+    SSP simplePreference;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
 
         View rootView = inflater.inflate(R.layout.fragment_contacts, container, false);
@@ -64,19 +65,11 @@ public class ContactsFragment extends Fragment {
 
         listView = (ListView) rootView.findViewById(R.id.listview1);
 
-        //onScrollStateChanged();
-
         ma = new MyAdapter();
         listView.setAdapter(ma);
-        //  listView.setOnItemClickListener(this);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setItemsCanFocus(false);
         listView.setTextFilterEnabled(true);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//            }
-//        });
 
 
         return rootView;
@@ -123,36 +116,12 @@ public class ContactsFragment extends Fragment {
     }
 
 
-//    @Override
-//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//        if (position == 0){
-//            cb.setChecked(false);
-//        }else{
-//            cb.setChecked(true);
-//        }
-//
-////        ma.toggle(position);
-//
-//    }
-
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        FloatingActionButton btn =  view.findViewById(R.id.fab);
-        int btn_initPosY = btn.getScrollY();
-        if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-            btn.animate().cancel();
-            btn.animate().translationYBy(150);
-        } else {
-            btn.animate().cancel();
-            btn.animate().translationY(btn_initPosY);
-        }
-    }
-
     private static class Holder {
-        TextView tv1, tv2;
-        CheckBox cb;
+        TextView tv1, tv2, contText;
+       // CheckBox cb;
         CircleImageView contactImage;
         CardView contactsCard;
+        ImageView iconImp;
 
     }
 
@@ -167,10 +136,7 @@ public class ContactsFragment extends Fragment {
         MyAdapter() {
             mCheckState = new SparseBooleanArray(contactName.size());
             mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            positionArray = new ArrayList<Boolean>(contactName.size());
-//            for (int i = 0; i < contactName.size(); i++){
-//                positionArray.add(false);
-//            }
+
         }
 
         @Override
@@ -200,36 +166,30 @@ public class ContactsFragment extends Fragment {
 
             holder = new Holder();
 
-            holder.tv1 =  vi.findViewById(R.id.contact_name);
-            holder.tv2 =  vi.findViewById(R.id.contact_number);
-            holder.contactImage =  vi.findViewById(R.id.contact_image);
-            holder.contactsCard =  vi.findViewById(R.id.contact_card_view);
-            holder.cb =  vi.findViewById(R.id.checkBox1);
+            holder.tv1 = vi.findViewById(R.id.contact_name);
+            holder.tv2 = vi.findViewById(R.id.contact_number);
+            holder.contactImage = vi.findViewById(R.id.contact_image);
+            holder.contactsCard = vi.findViewById(R.id.contact_card_view);
+            holder.contText = vi.findViewById(R.id.cont_text);
+            holder.iconImp = vi.findViewById(R.id.icon_star);
+            holder.iconImp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent myIntent = new Intent(getContext(), BarCodeActivity.class);
+                    myIntent.putExtra("CONTACT_NAME", contactName.get(position));
+                    myIntent.putExtra("CONTACT_NUMBER", contactNumber.get(position));
+                    getContext().startActivity(myIntent);
+                }
+            });
+            holder.contText.setText(contactName.get(position).substring(0,1));
+            //holder.iconText.setText(contacts.getName().substring(0, 1));
+
 
             vi.setTag(holder);
             holder = (Holder) vi.getTag();
-            holder.cb.setOnCheckedChangeListener(this);
-            holder.cb.setFocusable(false);
             holder.tv1.setText(contactName.get(position));
             holder.tv2.setText(contactNumber.get(position));
-            holder.cb.setTag(position);
-            holder.cb.setChecked(mCheckState.get(position, false));
-            holder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    String number;
-                    String name;
-                    CheckBox checkBox = (CheckBox) buttonView;
-                    if (isChecked){
-                        number = contactNumber.get(position).toString();
-                        name = contactName.get(position).toString();
-                    }
 
-
-                  //  mCheckState.put((Integer) buttonView.getTag(), isChecked);
-
-                }
-            });
 
             holder.contactsCard.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -266,8 +226,6 @@ public class ContactsFragment extends Fragment {
             });
 
 
-
-
             return vi;
         }
 
@@ -291,10 +249,3 @@ public class ContactsFragment extends Fragment {
     }
 
 }
-
-
-//    FragmentManager fragmentManager = getActivity().getFragmentManager();
-//    FragmentTransaction transaction = fragmentManager.beginTransaction();
-//                           transaction.replace(R.id.main_content, new ContactBarCodeFragment(),"uyyuyfyfu");
-//                                   transaction.addToBackStack(null);
-//                                   transaction.commit();

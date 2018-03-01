@@ -8,6 +8,14 @@
     tools:context="ng.com.blogspot.httpofficialceo.diveshare.BarCodeActivity">
 
     <TextView
+        android:id="@+id/personName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/barcode_scan_instruction"/>
+
+    <TextView
+        android:id="@+id/personNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

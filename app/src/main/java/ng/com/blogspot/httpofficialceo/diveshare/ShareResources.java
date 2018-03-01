@@ -46,6 +46,8 @@ public class ShareResources extends AppCompatActivity {
 
     }
 
+
+
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(new ContactsFragment(), "Contacts");
